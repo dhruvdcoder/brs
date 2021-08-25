@@ -5,7 +5,7 @@ from pathlib import Path
 from textwrap import dedent
 
 import nox
-from nox import Session
+from nox import Session, session
 
 package = "brs"
 python_versions = ['3.7', '3.8', '3.9']
