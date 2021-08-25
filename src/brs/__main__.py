@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
- import click 
+import click
 
 if os.environ.get("BRS_DEBUG"):
     LEVEL = logging.DEBUG
