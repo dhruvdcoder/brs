@@ -34,6 +34,7 @@ repos:
         log_file: docstring-coverage.txt
 
       - id: darglint # default config comes from .darglint
+        name: darglint
         args: [-v, '2']
         types: [python]
         exclude: "test_.*"
