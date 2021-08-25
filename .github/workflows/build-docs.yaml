@@ -32,10 +32,10 @@ jobs:
       run: |
         nox --force-color --session=docs_build
     - name: Upload html doc as Artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2.2.4
       with:
-        name: DocumentationHTML
-        path: docs_build/
+        name: docs
+        path: docs/_build
     - name: Deploy Docs
       # deploy only after merge
       if: ${{github.event_name == 'push'}}
