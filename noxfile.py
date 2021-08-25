@@ -163,4 +163,4 @@ def docs_build(session: Session) -> None:
     args = session.posargs or ["-b", "html" ,"docs", "docs/_build"]
     session.install('-r', 'doc_requirements.txt')
     _clear_docs_build_dir(session, args[-1])
-    session.run('sphinx', *args)
+    session.run('sphinx-build', *args)
