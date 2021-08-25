@@ -150,7 +150,7 @@ def xdoctest(session: Session) -> None:
     session.run("python", "-m", "xdoctest", package, *args)
 
 def _clear_docs_build_dir(session: Session, d: str)->None:
-    build_dir = Path(args[-1])
+    build_dir = Path(d)
 
     if build_dir.exists():
         session.log(f"Clearing {build_dir}")
