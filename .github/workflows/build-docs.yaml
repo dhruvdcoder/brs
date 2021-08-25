@@ -30,7 +30,7 @@ jobs:
 
     - name: Build Docs
       run: |
-        nox --force-color --session=docs_build
+        nox --force-color --session=build-docs
     - name: Upload html doc as Artifact
       uses: actions/upload-artifact@v2.2.4
       with:
