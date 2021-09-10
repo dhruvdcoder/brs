@@ -1,5 +1,6 @@
 nox
 pytest
 hypothesis
+jupytext
 pre-commit
 coverage[toml]

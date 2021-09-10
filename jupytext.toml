@@ -1,0 +1,3 @@
+[formats]
+"analysis/" = "ipynb"
+"docs/analysis/" = "py:sphinx"
