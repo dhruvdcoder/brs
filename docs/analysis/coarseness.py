@@ -55,7 +55,7 @@ def electra_predict(masked_sentence: str, replacements: List[str])-> Tuple[List[
 
 
 ""
-def mlm_predict(sentence: str, topk: int=10, model_name: str='bert-base-uncased') -> Tuple[List[str], List[float]]:
+def mlm_predict(sentence: str, replacements: List[str] = None, topk: int=10, model_name: str='bert-base-uncased') -> Tuple[List[str], List[float]]:
     """
     Given a sentence with single [MASK], returns topk predictions with their respective probabilities
     """
@@ -68,9 +68,14 @@ def mlm_predict(sentence: str, topk: int=10, model_name: str='bert-base-uncased'
     assert len(mask_positions) ==1
     mask_position = mask_positions[0]+1 # add 1 to account for CLS
     output = model(**encoded_input)
-    scores, output_ids = torch.topk(torch.softmax(output.logits, dim=-1)[:,mask_position,:],k=topk,dim=-1)
+    #from IPython.core.debugger import Pdb; Pdb().set_trace()
+    probabilities = torch.softmax(output.logits, dim=-1)[:,mask_position,:]
+    scores, output_ids = torch.topk(probabilities, k=topk, dim=-1)
     output_tokens = tokenizer.convert_ids_to_tokens(output_ids.squeeze().tolist())
     scores = scores.squeeze().tolist()
+    if replacements:
+        output_tokens+=replacements
+        scores += probabilities[:, tokenizer.convert_tokens_to_ids(replacements)].squeeze().tolist()
     return output_tokens, scores
 
 
@@ -96,28 +101,36 @@ Add sentences with \[MASK\] and a list of extra words (apart from top ranking pr
 
 masked_sentences = [
     "The [MASK] went into the hospital.",
-    "[MASK] flew through the window."
+    "[MASK] flew through the window.",
+    "Eating [MASK] is not good for health.",
+    "The monkey [MASK] the wall",
+    "The [MASK] was brought to the zoo.",
 ]
 extra_words_ = [
-    ['car', 'ball', 'book', 'ship', 'play'],
-    ['cat', 'plane', 'Jim'],
+    ['car', 'ball', 'book', 'ship', 'play', 'his', 'a', 'this'],
+    ['cat', 'plane', 'Jim', 'his', 'a', 'this'],
+    ['car', 'sports', 'carry', 'food', 'water', 'sitting', 'his', 'a', 'this'],
+    ['break', 'kick', 'climb', 'dog', 'his', 'time'],
+    ['animal', 'dog', 'tree', 'pipe', 'chair', 'run', 'his', 'a', 'this']
 ]
 
 ""
 for i, (masked_sentence, extra_words) in enumerate(zip(masked_sentences, extra_words_)):
+    print("================")
     print(f"Example {i+1}")
     print("================")
     print(f"Sentence: {masked_sentence}\n")
-    mlm_predictions, mlm_scores =  mlm_predict(masked_sentence)
+    mlm_predictions, mlm_scores =  mlm_predict(masked_sentence, extra_words)
     print("Top 10 words from MLM and their probabilities.\n")
     for score, token in zip(mlm_scores, mlm_predictions):
         print(f"{token}: {score}")
     plot_scores(mlm_scores, mlm_predictions, "MLM probability for top MLM predictions", "model probability")
-    electra_tokens, electra_scores, electra_avg_scores = electra_predict(masked_sentence, mlm_predictions + extra_words)
+    electra_tokens, electra_scores, electra_avg_scores = electra_predict(masked_sentence, mlm_predictions)
     print("\nCorrectness (score in [0,1] for the word / avg score for all words in the sentence) given by ELECTRA\n")
     for score, token, avg in zip(electra_scores, electra_tokens, electra_avg_scores):
         print(f"{token}: {(1-score):4f} / {(1-avg):4f}")
     plot_scores([1-s for s in electra_scores], electra_tokens, "ELECTRA scores for correctness in [0,1] for top MLM predictions", "model correctness score")
+    print("================")
     print("\n")
 
 """
