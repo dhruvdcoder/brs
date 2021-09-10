@@ -2,3 +2,4 @@ torch==1.9.0
 transformers==4.10.0
 jupyterlab>=3.0.0
 jupytext
+matplotlib
